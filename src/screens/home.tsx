@@ -132,11 +132,6 @@ const HomeScreen: React.FC = () => {
     }
   };
 
-  console.log({
-    isInitialInstructions,
-    instructionsVisible,
-  });
-
   const combinedWordleRows = React.useMemo(() => {
     if (state && state?.wordleRows.length < MAX_GUESS_COUNT) {
       return [
