@@ -23,11 +23,16 @@ export const WordleStateProvider: React.FC = ({ children }) => {
 
   const [state, setState] = React.useState<IWordleState | undefined>(undefined);
 
+  const setWordleState = React.useCallback((nextState) => {
+    setState(nextState);
+    setStoredWordleState(nextState);
+  }, []);
+
   const getStoredState = React.useCallback(async () => {
     const stored = await getStoredWordleState();
     if (stored && stored.wordleIndex === wordleIndex) {
       // is not stale
-      setState(stored);
+      setWordleState(stored);
     } else {
       // create an empty one with current index
       const emptyState: IWordleState = {
@@ -36,18 +41,13 @@ export const WordleStateProvider: React.FC = ({ children }) => {
         wordleStatus: "inprogress",
       };
 
-      setState(emptyState);
+      setWordleState(emptyState);
     }
   }, [wordleIndex]);
 
   React.useEffect(() => {
     getStoredState();
   }, [getStoredState]);
-
-  const setWordleState = React.useCallback((nextState) => {
-    setState(nextState);
-    setStoredWordleState(nextState);
-  }, []);
 
   return (
     <WordleStateContext.Provider value={{ state, setState: setWordleState }}>
