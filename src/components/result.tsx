@@ -4,13 +4,60 @@ import {
   TouchableOpacity,
   Text,
   StyleSheet,
+  Share,
   LayoutAnimation,
 } from "react-native";
-import theme from "../theme";
 import { Ionicons } from "@expo/vector-icons";
+
+import theme from "../theme";
+import { getCurrentWordle } from "../utils/get-current-wordle";
+import { useWordleState } from "../contexts/wordle-state-context";
+import { getNextWordleTimeDiff } from "../utils/get-next-wordle-time-diff";
+import { parseTimeFromMs } from "../utils/parse-time-from-ms";
+import { getCurrentWordleIndex } from "../utils/get-current-wordle-index";
+import {
+  MAX_GUESS_COUNT,
+  WORDLE_SHARE_CORRECT,
+  WORDLE_SHARE_MISPLACED,
+  WORDLE_SHARE_WRONG,
+} from "../constants";
 
 const Result: React.FC = () => {
   const [visible, setVisible] = React.useState(false);
+  const currentWordle = getCurrentWordle();
+  const currentIndex = getCurrentWordleIndex();
+  const diff = getNextWordleTimeDiff();
+  const [hours, minutes] = parseTimeFromMs(diff);
+  const [state] = useWordleState();
+
+  const handleShare = React.useCallback(() => {
+    const shareTitle = `Wordle Türkçe #${currentIndex + 1} ${
+      state?.wordleRows.length
+    }/${MAX_GUESS_COUNT}`;
+
+    const shareBlocks = state?.wordleRows
+      ?.map((row) => {
+        return row
+          .map((key) => {
+            switch (key.type) {
+              case "correct":
+                return WORDLE_SHARE_CORRECT;
+              case "misplaced":
+                return WORDLE_SHARE_MISPLACED;
+              default:
+                return WORDLE_SHARE_WRONG;
+            }
+          })
+          .join("");
+      })
+      .join("\n");
+
+    const shareMessage = `${shareTitle}\n\n${shareBlocks}`;
+
+    Share.share({
+      message: shareMessage,
+    });
+  }, [currentIndex, state]);
 
   React.useEffect(() => {
     setTimeout(() => {
@@ -31,14 +78,16 @@ const Result: React.FC = () => {
 
   return (
     <View style={styles.modal}>
-      <Text style={styles.title}>Başarısız</Text>
+      <Text style={styles.title}>
+        {state?.wordleStatus === "completed" ? "Başarılı!" : "Başarısız :("}
+      </Text>
 
-      <Text style={styles.word}>ŞAPKA</Text>
+      <Text style={styles.word}>{currentWordle.madde.toLocaleUpperCase()}</Text>
       <Text style={styles.title}>Bir sonraki bulmaca</Text>
 
-      <Text style={styles.time}>16 saat 32 dakika</Text>
+      <Text style={styles.time}>{`${hours} saat ${minutes} dakika`}</Text>
 
-      <TouchableOpacity style={styles.button}>
+      <TouchableOpacity style={styles.button} onPress={handleShare}>
         <Ionicons
           name="share-outline"
           size={26}
