@@ -1,20 +1,35 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
+import { KeyStatus } from "../@types/wordle-state";
 import theme from "../theme";
 
 type Props = {
   letter?: string;
-  type?: "default" | "wrong" | "misplaced" | "correct";
+  type?: KeyStatus;
   size?: number;
 };
 
 const Letter: React.FC<Props> = ({ letter, size = 60, type }) => {
+  const bgColor = React.useMemo(() => {
+    switch (type) {
+      case "correct":
+        return theme.colors.green;
+      case "misplaced":
+        return theme.colors.yellow;
+      case "wrong":
+        return theme.colors.backgroundColorSecondary;
+      default:
+        return theme.colors.backgroundColorTetriary;
+    }
+  }, [type]);
+
   return (
     <View style={styles.wrapper}>
       <View
         style={[
           styles.letter,
           {
+            backgroundColor: bgColor,
             width: size - theme.spacing.s,
             height: size - theme.spacing.s,
           },
@@ -24,8 +39,8 @@ const Letter: React.FC<Props> = ({ letter, size = 60, type }) => {
           style={[
             styles.text,
             {
-              lineHeight: size,
-              fontSize: size * 0.65,
+              lineHeight: size - theme.spacing.s,
+              fontSize: (size - theme.spacing.s) * 0.7,
             },
           ]}
         >
