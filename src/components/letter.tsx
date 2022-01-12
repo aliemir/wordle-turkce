@@ -1,5 +1,11 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSequence,
+  withTiming,
+} from "react-native-reanimated";
 import { KeyStatus } from "../@types/wordle-state";
 import theme from "../theme";
 
@@ -23,18 +29,35 @@ const Letter: React.FC<Props> = ({ letter, size = 60, type }) => {
     }
   }, [type]);
 
+  const animatedValue = useSharedValue(1);
+
+  React.useEffect(() => {
+    animatedValue.value = withSequence(withTiming(1.2), withTiming(1));
+  }, [type]);
+
+  React.useEffect(() => {
+    animatedValue.value = withSequence(
+      withTiming(1.1, { duration: 180 }),
+      withTiming(1, { duration: 180 }),
+    );
+  }, [letter]);
+
+  const letterStyle = useAnimatedStyle(() => {
+    return {
+      borderRadius: theme.borderRadii.s,
+      width: size - theme.spacing.s,
+      height: size - theme.spacing.s,
+      transform: [
+        {
+          scale: animatedValue.value,
+        },
+      ],
+    };
+  }, []);
+
   return (
     <View style={styles.wrapper}>
-      <View
-        style={[
-          styles.letter,
-          {
-            backgroundColor: bgColor,
-            width: size - theme.spacing.s,
-            height: size - theme.spacing.s,
-          },
-        ]}
-      >
+      <Animated.View style={[{ backgroundColor: bgColor }, letterStyle]}>
         <Text
           style={[
             styles.text,
@@ -46,7 +69,7 @@ const Letter: React.FC<Props> = ({ letter, size = 60, type }) => {
         >
           {letter}
         </Text>
-      </View>
+      </Animated.View>
     </View>
   );
 };
@@ -54,10 +77,6 @@ const Letter: React.FC<Props> = ({ letter, size = 60, type }) => {
 const styles = StyleSheet.create({
   wrapper: {
     padding: theme.spacing.s / 2,
-  },
-  letter: {
-    borderRadius: theme.borderRadii.s,
-    backgroundColor: theme.colors.backgroundColorSecondary,
   },
   text: {
     color: theme.colors.bodyPrimary,
