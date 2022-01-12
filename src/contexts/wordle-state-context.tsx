@@ -60,7 +60,7 @@ export const useWordleState = () => {
   const { state, setState } = React.useContext(WordleStateContext);
 
   return [state, setState] as [
-    IWordleState,
+    IWordleState | undefined,
     (nextState?: IWordleState) => void,
   ];
 };
