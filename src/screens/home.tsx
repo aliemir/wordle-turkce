@@ -18,17 +18,34 @@ import { IWordleState, KeyStatus } from "../@types/wordle-state";
 import { getCurrentWordle } from "../utils/get-current-wordle";
 import { AllWordsDictionary } from "../data/all-words";
 import { getCurrentWordleIndex } from "../utils/get-current-wordle-index";
+import Instructions from "../components/instructions";
+import { getStoredInstructionsState } from "../utils/get-stored-instructions-state";
+import { setStoredInstructionsState } from "../utils/set-stored-instructions-state";
 
 const HomeScreen: React.FC = () => {
   const [settled, setSettled] = React.useState(false);
   const [unitSize, setUnitSize] = React.useState<number | undefined>(undefined);
   const [state, setWordleState] = useWordleState();
   const [activeTyping, setActiveTyping] = React.useState<string[]>([]);
+  const [instructionsVisible, setInstructionsVisible] = React.useState(false);
+  const [isInitialInstructions, setIsInitialInstructions] =
+    React.useState(false);
+
   const currentWordleIndex = React.useMemo(() => {
     return getCurrentWordleIndex();
   }, []);
   const currentWordle = React.useMemo(() => {
     return getCurrentWordle();
+  }, []);
+
+  React.useEffect(() => {
+    const getInitialState = async () => {
+      const initial = await getStoredInstructionsState();
+      setIsInitialInstructions(!initial);
+      setInstructionsVisible(!initial);
+    };
+
+    getInitialState();
   }, []);
 
   React.useLayoutEffect(() => {
@@ -100,6 +117,26 @@ const HomeScreen: React.FC = () => {
     }
   };
 
+  const onInfoPress = () => {
+    LayoutAnimation.configureNext(
+      LayoutAnimation.create(
+        250,
+        LayoutAnimation.Types.easeIn,
+        LayoutAnimation.Properties.opacity,
+      ),
+    );
+    setInstructionsVisible((p) => !p);
+    if (isInitialInstructions) {
+      setStoredInstructionsState();
+      setIsInitialInstructions(false);
+    }
+  };
+
+  console.log({
+    isInitialInstructions,
+    instructionsVisible,
+  });
+
   const combinedWordleRows = React.useMemo(() => {
     if (state && state?.wordleRows.length < MAX_GUESS_COUNT) {
       return [
@@ -119,53 +156,59 @@ const HomeScreen: React.FC = () => {
   return (
     <SafeAreaView style={styles.screen}>
       <StatusBar style="light" />
-      <Header index={currentWordleIndex} />
-      <View style={styles.gridWrapper}>
-        {settled && (
-          <View onLayout={onGridLayout} style={styles.grid}>
-            {unitSize
-              ? Array.from({ length: MAX_GUESS_COUNT }).map((_, i) => (
-                  <View key={i} style={styles.gridRow}>
-                    {Array.from({ length: WORDLE_LENGTH }).map((_, j) => (
-                      <Letter
-                        key={`${i}-${j}`}
-                        letter={combinedWordleRows?.[i]?.[
-                          j
-                        ]?.key.toLocaleUpperCase("tr")}
-                        type={combinedWordleRows?.[i]?.[j]?.type}
-                        size={unitSize}
-                      />
-                    ))}
-                  </View>
-                ))
-              : null}
+      <Header index={currentWordleIndex} onInfo={onInfoPress} />
+      {!instructionsVisible ? (
+        <>
+          <View style={styles.gridWrapper}>
+            {settled && (
+              <View onLayout={onGridLayout} style={styles.grid}>
+                {unitSize
+                  ? Array.from({ length: MAX_GUESS_COUNT }).map((_, i) => (
+                      <View key={i} style={styles.gridRow}>
+                        {Array.from({ length: WORDLE_LENGTH }).map((_, j) => (
+                          <Letter
+                            key={`${i}-${j}`}
+                            letter={combinedWordleRows?.[i]?.[
+                              j
+                            ]?.key.toLocaleUpperCase("tr")}
+                            type={combinedWordleRows?.[i]?.[j]?.type}
+                            size={unitSize}
+                          />
+                        ))}
+                      </View>
+                    ))
+                  : null}
+              </View>
+            )}
           </View>
-        )}
-      </View>
-      <View style={styles.keyboardWrapper}>
-        <Keyboard
-          onKeyPress={onKeyPress}
-          onRemove={onRemoveKey}
-          onSubmit={onSubmitTry}
-          missKeys={state?.wordleRows
-            .flatMap((row) => row)
-            .filter((key) => key.type === "misplaced")
-            .map((key) => key.key)}
-          correctKeys={state?.wordleRows
-            .flatMap((row) => row)
-            .filter((key) => key.type === "correct")
-            .map((key) => key.key)}
-          wrongKeys={state?.wordleRows
-            .flatMap((row) => row)
-            .filter((key) => key.type === "wrong")
-            .map((key) => key.key)}
-        />
-      </View>
-      {state &&
-      (state.wordleStatus === "completed" ||
-        state.wordleStatus === "failed") ? (
-        <Result />
-      ) : null}
+          <View style={styles.keyboardWrapper}>
+            <Keyboard
+              onKeyPress={onKeyPress}
+              onRemove={onRemoveKey}
+              onSubmit={onSubmitTry}
+              missKeys={state?.wordleRows
+                .flatMap((row) => row)
+                .filter((key) => key.type === "misplaced")
+                .map((key) => key.key)}
+              correctKeys={state?.wordleRows
+                .flatMap((row) => row)
+                .filter((key) => key.type === "correct")
+                .map((key) => key.key)}
+              wrongKeys={state?.wordleRows
+                .flatMap((row) => row)
+                .filter((key) => key.type === "wrong")
+                .map((key) => key.key)}
+            />
+          </View>
+          {state &&
+          (state.wordleStatus === "completed" ||
+            state.wordleStatus === "failed") ? (
+            <Result />
+          ) : null}
+        </>
+      ) : (
+        <Instructions isInitial={isInitialInstructions} onStart={onInfoPress} />
+      )}
     </SafeAreaView>
   );
 };
