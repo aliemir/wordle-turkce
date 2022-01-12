@@ -5582,4 +5582,8 @@ const AllWords = [
   "şırak",
 ];
 
+export const AllWordsDictionary = Object.fromEntries(
+  AllWords.map((word) => [word, word]),
+);
+
 export default AllWords;
