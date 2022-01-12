@@ -7,7 +7,8 @@ import { setStoredWordleState } from "../utils/set-stored-wordle-state";
 const WordleStateContext = React.createContext<{
   state?: IWordleState;
   setState: (nextState?: IWordleState) => void;
-}>({ setState: () => undefined });
+  checkWordleIndex: () => void;
+}>({ setState: () => undefined, checkWordleIndex: () => undefined });
 
 // wordleIndex: number;
 // wordleStatus: "failed" | "completed" | "inprogress";
@@ -19,6 +20,12 @@ export const WordleStateProvider: React.FC = ({ children }) => {
   React.useEffect(() => {
     const currIndex = getCurrentWordleIndex();
     setWordleIndex(currIndex);
+  }, []);
+
+  const checkWordleIndex = React.useCallback(() => {
+    const index = getCurrentWordleIndex();
+
+    setWordleIndex(index);
   }, []);
 
   const [state, setState] = React.useState<IWordleState | undefined>(undefined);
@@ -50,17 +57,21 @@ export const WordleStateProvider: React.FC = ({ children }) => {
   }, [getStoredState]);
 
   return (
-    <WordleStateContext.Provider value={{ state, setState: setWordleState }}>
+    <WordleStateContext.Provider
+      value={{ state, setState: setWordleState, checkWordleIndex }}
+    >
       {children}
     </WordleStateContext.Provider>
   );
 };
 
 export const useWordleState = () => {
-  const { state, setState } = React.useContext(WordleStateContext);
+  const { state, setState, checkWordleIndex } =
+    React.useContext(WordleStateContext);
 
-  return [state, setState] as [
+  return [state, setState, checkWordleIndex] as [
     IWordleState | undefined,
     (nextState?: IWordleState) => void,
+    () => void,
   ];
 };
