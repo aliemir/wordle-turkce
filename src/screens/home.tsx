@@ -78,8 +78,9 @@ const HomeScreen: React.FC = () => {
 
       setActiveTyping([]);
       setWordleState({
-        ...state,
-        wordleRows: [...state?.wordleRows, checked],
+        ...(state ?? {}),
+        wordleIndex: currentWordleIndex,
+        wordleRows: [...(state?.wordleRows ?? []), checked],
         wordleStatus: checked.every((el) => el.type === "correct")
           ? "completed"
           : state?.wordleRows.length === MAX_GUESS_COUNT - 1
