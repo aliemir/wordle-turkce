@@ -4,3 +4,6 @@ export const WORDLE_STORAGE_KEY = "@CurrentWordle";
 export const WORDLE_HISTORY_STORAGE_KEY = "@WordleHistory";
 export const MAX_GUESS_COUNT = 6;
 export const WORDLE_LENGTH = 5;
+export const WORDLE_SHARE_MISPLACED = "🟨";
+export const WORDLE_SHARE_CORRECT = "🟩";
+export const WORDLE_SHARE_WRONG = "⬛";
