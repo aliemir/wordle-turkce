@@ -1,9 +1,34 @@
 import React from "react";
-import { View, TouchableOpacity, Text, StyleSheet } from "react-native";
+import {
+  View,
+  TouchableOpacity,
+  Text,
+  StyleSheet,
+  LayoutAnimation,
+} from "react-native";
 import theme from "../theme";
 import { Ionicons } from "@expo/vector-icons";
 
 const Result: React.FC = () => {
+  const [visible, setVisible] = React.useState(false);
+
+  React.useEffect(() => {
+    setTimeout(() => {
+      LayoutAnimation.configureNext(
+        LayoutAnimation.create(
+          250,
+          LayoutAnimation.Types.easeIn,
+          LayoutAnimation.Properties.opacity,
+        ),
+      );
+      setVisible(true);
+    }, 1000);
+  }, []);
+
+  if (!visible) {
+    return null;
+  }
+
   return (
     <View style={styles.modal}>
       <Text style={styles.title}>Başarısız</Text>
