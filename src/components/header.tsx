@@ -4,10 +4,22 @@ import { Ionicons } from "@expo/vector-icons";
 
 import theme from "../theme";
 
-const Header: React.FC = () => {
+type Props = {
+  onInfo?: () => void;
+  onNotification?: () => void;
+  notificationsEnabled?: boolean;
+  index: number;
+};
+
+const Header: React.FC<Props> = ({
+  onInfo,
+  onNotification,
+  notificationsEnabled,
+  index,
+}) => {
   return (
     <View style={styles.wrapper}>
-      <TouchableOpacity style={styles.button}>
+      <TouchableOpacity style={styles.button} onPress={onInfo}>
         <Ionicons
           name="help-outline"
           color={theme.colors.bodySecondary}
@@ -15,20 +27,18 @@ const Header: React.FC = () => {
         />
       </TouchableOpacity>
       <View style={styles.title}>
-        <Text style={styles.number}>Bulmaca #17</Text>
-        {/* <Text style={styles.date}>12 Ocak 2022</Text> */}
+        <Text style={styles.number}>{`Bulmaca #${(index ?? 0) + 1}`}</Text>
       </View>
-      <TouchableOpacity style={styles.button}>
+      <TouchableOpacity style={styles.button} onPress={onNotification}>
         <Ionicons
-          name="notifications-outline"
+          name={
+            notificationsEnabled
+              ? "notifications-outline"
+              : "notifications-off-outline"
+          }
           color={theme.colors.bodySecondary}
           size={28}
         />
-        {/* <Ionicons
-            name="notifications-off-outline"
-            color={theme.colors.bodySecondary}
-            size={24}
-          /> */}
       </TouchableOpacity>
     </View>
   );
