@@ -31,7 +31,7 @@ export const dark = {
 const theme = {
   colors: dark,
   fontFamilies: {
-    Regular: "R",
+    Regular: "Regular",
     RegularItalic: "RegularItalic",
     Bold: "Bold",
     BoldItalic: "BoldItalic",
