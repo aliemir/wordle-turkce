@@ -85,7 +85,9 @@ const Result: React.FC = () => {
       <Text style={styles.word}>{currentWordle.madde.toLocaleUpperCase()}</Text>
       <Text style={styles.title}>Bir sonraki bulmaca</Text>
 
-      <Text style={styles.time}>{`${hours} saat ${minutes} dakika`}</Text>
+      <Text style={styles.time}>{`${hours > 0 ? `${hours} saat ` : ""}${
+        minutes > 0 ? `${minutes} dakika` : ""
+      }`}</Text>
 
       <TouchableOpacity style={styles.button} onPress={handleShare}>
         <Ionicons
