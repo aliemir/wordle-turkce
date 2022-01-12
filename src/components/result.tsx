@@ -28,7 +28,7 @@ const Result: React.FC = () => {
   const currentIndex = getCurrentWordleIndex();
   const diff = getNextWordleTimeDiff();
   const [hours, minutes] = parseTimeFromMs(diff);
-  const [state] = useWordleState();
+  const [state, _, checkCurrentIndex] = useWordleState();
 
   const handleShare = React.useCallback(() => {
     const shareTitle = `Wordle Türkçe #${currentIndex + 1} ${
@@ -60,17 +60,21 @@ const Result: React.FC = () => {
   }, [currentIndex, state]);
 
   React.useEffect(() => {
-    setTimeout(() => {
-      LayoutAnimation.configureNext(
-        LayoutAnimation.create(
-          250,
-          LayoutAnimation.Types.easeIn,
-          LayoutAnimation.Properties.opacity,
-        ),
-      );
-      setVisible(true);
-    }, 1000);
-  }, []);
+    if (currentIndex === state?.wordleIndex) {
+      setTimeout(() => {
+        LayoutAnimation.configureNext(
+          LayoutAnimation.create(
+            250,
+            LayoutAnimation.Types.easeIn,
+            LayoutAnimation.Properties.opacity,
+          ),
+        );
+        setVisible(true);
+      }, 1000);
+    } else {
+      checkCurrentIndex();
+    }
+  }, [currentIndex]);
 
   if (!visible) {
     return null;
