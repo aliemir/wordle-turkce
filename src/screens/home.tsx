@@ -21,6 +21,7 @@ import { getCurrentWordleIndex } from "../utils/get-current-wordle-index";
 import Instructions from "../components/instructions";
 import { getStoredInstructionsState } from "../utils/get-stored-instructions-state";
 import { setStoredInstructionsState } from "../utils/set-stored-instructions-state";
+import Toast from "react-native-root-toast";
 
 const HomeScreen: React.FC = () => {
   const [settled, setSettled] = React.useState(false);
@@ -72,10 +73,24 @@ const HomeScreen: React.FC = () => {
 
   const onSubmitTry = () => {
     if (activeTyping.length === WORDLE_LENGTH) {
+      LayoutAnimation.configureNext(
+        LayoutAnimation.create(
+          250,
+          LayoutAnimation.Types.easeIn,
+          LayoutAnimation.Properties.opacity,
+        ),
+      );
       // check validity
       const dict =
         AllWordsDictionary[activeTyping.join("").toLocaleLowerCase("tr")];
       if (!dict) {
+        Toast.show("Kelime Bulunamadı.", {
+          duration: Toast.durations.SHORT,
+          position: Toast.positions.CENTER,
+          backgroundColor: theme.colors.backgroundColorSecondary,
+          textColor: theme.colors.bodyTetriary,
+          opacity: 1,
+        });
         console.log("not valid");
         return;
       }
@@ -94,15 +109,25 @@ const HomeScreen: React.FC = () => {
       );
 
       setActiveTyping([]);
+      const nextStatus = checked.every((el) => el.type === "correct")
+        ? "completed"
+        : state?.wordleRows.length === MAX_GUESS_COUNT - 1
+        ? "failed"
+        : "inprogress";
+      if (nextStatus === "completed") {
+        Toast.show("Tebrikler!", {
+          duration: Toast.durations.SHORT,
+          position: Toast.positions.CENTER,
+          backgroundColor: theme.colors.backgroundColorSecondary,
+          textColor: theme.colors.bodyTetriary,
+          opacity: 1,
+        });
+      }
       setWordleState({
         ...(state ?? {}),
         wordleIndex: currentWordleIndex,
         wordleRows: [...(state?.wordleRows ?? []), checked],
-        wordleStatus: checked.every((el) => el.type === "correct")
-          ? "completed"
-          : state?.wordleRows.length === MAX_GUESS_COUNT - 1
-          ? "failed"
-          : "inprogress",
+        wordleStatus: nextStatus,
       });
     }
   };
