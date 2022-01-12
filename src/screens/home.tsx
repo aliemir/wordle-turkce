@@ -14,7 +14,7 @@ import Header from "../components/header";
 import Result from "../components/result";
 import { useWordleState } from "../contexts/wordle-state-context";
 import { MAX_GUESS_COUNT, WORDLE_LENGTH } from "../constants";
-import { IWordleState, KeyStatus } from "../@types/wordle-state";
+import { KeyStatus } from "../@types/wordle-state";
 import { getCurrentWordle } from "../utils/get-current-wordle";
 import { AllWordsDictionary } from "../data/all-words";
 import { getCurrentWordleIndex } from "../utils/get-current-wordle-index";
@@ -22,6 +22,11 @@ import Instructions from "../components/instructions";
 import { getStoredInstructionsState } from "../utils/get-stored-instructions-state";
 import { setStoredInstructionsState } from "../utils/set-stored-instructions-state";
 import Toast from "react-native-root-toast";
+import {
+  getNotificationsLocalState,
+  resetNotifications,
+  toggleNotifications,
+} from "../utils/handle-notifications";
 
 const HomeScreen: React.FC = () => {
   const [settled, setSettled] = React.useState(false);
@@ -29,6 +34,7 @@ const HomeScreen: React.FC = () => {
   const [state, setWordleState] = useWordleState();
   const [activeTyping, setActiveTyping] = React.useState<string[]>([]);
   const [instructionsVisible, setInstructionsVisible] = React.useState(false);
+  const [notificationState, setNotificationState] = React.useState(false);
   const [isInitialInstructions, setIsInitialInstructions] =
     React.useState(false);
 
@@ -157,6 +163,24 @@ const HomeScreen: React.FC = () => {
     }
   };
 
+  React.useEffect(() => {
+    const fetchNotificationStatus = async () => {
+      const status = await getNotificationsLocalState();
+      setNotificationState(status);
+      if (status) {
+        resetNotifications();
+      }
+    };
+
+    fetchNotificationStatus();
+  }, []);
+
+  const onNotificationPress = React.useCallback(async () => {
+    const nextState = !notificationState;
+    setNotificationState(nextState);
+    await toggleNotifications(nextState);
+  }, [notificationState]);
+
   const combinedWordleRows = React.useMemo(() => {
     if (state && state?.wordleRows.length < MAX_GUESS_COUNT) {
       return [
@@ -176,7 +200,12 @@ const HomeScreen: React.FC = () => {
   return (
     <SafeAreaView style={styles.screen}>
       <StatusBar style="light" />
-      <Header index={currentWordleIndex} onInfo={onInfoPress} />
+      <Header
+        index={currentWordleIndex}
+        onInfo={onInfoPress}
+        onNotification={onNotificationPress}
+        notificationsEnabled={notificationState}
+      />
       {!instructionsVisible ? (
         <>
           <View style={styles.gridWrapper}>
