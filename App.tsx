@@ -9,6 +9,7 @@ import {
   Merriweather_700Bold_Italic,
 } from "@expo-google-fonts/merriweather";
 import HomeScreen from "./src/screens/home";
+import { WordleStateProvider } from "./src/contexts/wordle-state-context";
 
 const fonts = {
   Regular: Merriweather_400Regular,
@@ -60,5 +61,9 @@ export default function App() {
     return null;
   }
 
-  return <HomeScreen />;
+  return (
+    <WordleStateProvider>
+      <HomeScreen />
+    </WordleStateProvider>
+  );
 }
