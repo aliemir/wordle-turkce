@@ -8,6 +8,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import theme from "../theme";
+import { KeyStatus } from "../@types/wordle-state";
 
 type KeyboardProps = {
   onKeyPress?: (key: string) => void;
@@ -16,12 +17,13 @@ type KeyboardProps = {
   onSubmit?: () => void;
   correctKeys?: string[];
   missKeys?: string[];
+  wrongKeys?: string[];
 };
 
 type KeyProps = {
   onPress?: () => void;
   isActionKey?: boolean;
-  status?: "default" | "correct" | "miss";
+  status?: KeyStatus;
 };
 
 const KEYS_BY_ROW = ["QWERTYUIOPĞÜ", "ASDFGHJKLŞİ", "ZXCVBNMÖÇ"];
@@ -44,8 +46,10 @@ const Key: React.FC<KeyProps> = ({
     switch (status) {
       case "correct":
         return theme.colors.green;
-      case "miss":
+      case "misplaced":
         return theme.colors.yellow;
+      case "wrong":
+        return theme.colors.backgroundColorSecondary;
       default:
         return theme.colors.backgroundColorTetriary;
     }
@@ -94,6 +98,7 @@ const Keyboard: React.FC<KeyboardProps> = ({
   onSubmit,
   correctKeys,
   missKeys,
+  wrongKeys,
 }) => {
   return (
     <View>
@@ -118,12 +123,14 @@ const Keyboard: React.FC<KeyboardProps> = ({
           {row.split("").map((key) => (
             <Key
               key={key}
-              onPress={() => onKeyPress?.(key)}
+              onPress={() => onKeyPress?.(key.toLocaleLowerCase("tr"))}
               status={
-                correctKeys?.includes(key)
+                correctKeys?.includes(key.toLocaleLowerCase("tr"))
                   ? "correct"
-                  : missKeys?.includes(key)
-                  ? "miss"
+                  : missKeys?.includes(key.toLocaleLowerCase("tr"))
+                  ? "misplaced"
+                  : wrongKeys?.includes(key.toLocaleLowerCase("tr"))
+                  ? "wrong"
                   : "default"
               }
             >
