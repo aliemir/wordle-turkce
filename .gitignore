@@ -15,3 +15,9 @@ web-build/
 
 # local history
 .history
+
+# gcloud
+*-gcloud.json
+
+# eas details
+eas.json
