@@ -9,5 +9,5 @@ export const getNextWordleTimeDiff = () => {
 
   const diff = nextWordleTime - now;
 
-  return diff;
+  return Math.abs(diff);
 };
