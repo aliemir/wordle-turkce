@@ -4,6 +4,7 @@ import Wordles from "../data/wordles";
 export const getCurrentWordleIndex = () => {
   const now = Date.now();
   const diff = now - WORDLE_START_MS;
-  const currentIndex = Math.floor(diff / WORDLE_INTERVAL_MS);
+  let currentIndex = Math.floor(diff / WORDLE_INTERVAL_MS);
+  currentIndex = currentIndex < 0 ? 0 : currentIndex;
   return currentIndex < Wordles.length ? currentIndex : Wordles.length - 1;
 };
