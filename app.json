@@ -26,11 +26,11 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.aliemir.turkcewordle",
-      "buildNumber": "1.0.1"
+      "buildNumber": "1.0.4"
     },
     "android": {
       "package": "com.aliemir.turkceworldle",
-      "versionCode": 2,
+      "versionCode": 4,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
