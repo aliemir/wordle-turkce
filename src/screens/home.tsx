@@ -2,6 +2,7 @@ import React from "react";
 import { StatusBar } from "expo-status-bar";
 import {
   View,
+  Text,
   StyleSheet,
   LayoutAnimation,
   LayoutChangeEvent,
@@ -17,33 +18,24 @@ import { MAX_GUESS_COUNT, WORDLE_LENGTH } from "../constants";
 import { KeyStatus } from "../@types/wordle-state";
 import { getCurrentWordle } from "../utils/get-current-wordle";
 import { AllWordsDictionary } from "../data/all-words";
-import { getCurrentWordleIndex } from "../utils/get-current-wordle-index";
 import Instructions from "../components/instructions";
 import { getStoredInstructionsState } from "../utils/get-stored-instructions-state";
 import { setStoredInstructionsState } from "../utils/set-stored-instructions-state";
 import Toast from "react-native-root-toast";
-import {
-  getNotificationsLocalState,
-  resetNotifications,
-  toggleNotifications,
-} from "../utils/handle-notifications";
+import { toLower, toUpper } from "../utils/to-lower";
 
 const HomeScreen: React.FC = () => {
   const [settled, setSettled] = React.useState(false);
   const [unitSize, setUnitSize] = React.useState<number | undefined>(undefined);
-  const [state, setWordleState] = useWordleState();
+  const [state, setWordleState, loaded] = useWordleState();
   const [activeTyping, setActiveTyping] = React.useState<string[]>([]);
   const [instructionsVisible, setInstructionsVisible] = React.useState(false);
-  const [notificationState, setNotificationState] = React.useState(false);
   const [isInitialInstructions, setIsInitialInstructions] =
     React.useState(false);
 
-  const currentWordleIndex = React.useMemo(() => {
-    return getCurrentWordleIndex();
-  }, []);
   const currentWordle = React.useMemo(() => {
-    return getCurrentWordle();
-  }, []);
+    return getCurrentWordle(state?.wordleIndex ?? 0);
+  }, [state]);
 
   React.useEffect(() => {
     const getInitialState = async () => {
@@ -87,8 +79,7 @@ const HomeScreen: React.FC = () => {
         ),
       );
       // check validity
-      const dict =
-        AllWordsDictionary[activeTyping.join("").toLocaleLowerCase("tr")];
+      const dict = AllWordsDictionary[toLower(activeTyping.join(""))];
       if (!dict) {
         Toast.show("Kelime Bulunamadı.", {
           duration: Toast.durations.SHORT,
@@ -97,18 +88,17 @@ const HomeScreen: React.FC = () => {
           textColor: theme.colors.bodyTetriary,
           opacity: 1,
         });
-        console.log("not valid");
         return;
       }
       // able to submit
       const checked: { key: string; type: KeyStatus }[] = activeTyping.map(
         (key, i) =>
           ({
-            key: key.toLocaleLowerCase("tr"),
+            key: toLower(key),
             type:
-              key.toLocaleLowerCase("tr") === currentWordle.madde[i]
+              toLower(key) === currentWordle[i]
                 ? "correct"
-                : currentWordle.madde.includes(key.toLocaleLowerCase("tr"))
+                : currentWordle.includes(toLower(key))
                 ? "misplaced"
                 : "wrong",
           } as { key: string; type: KeyStatus }),
@@ -129,9 +119,23 @@ const HomeScreen: React.FC = () => {
           opacity: 1,
         });
       }
+      const nextCurrentStreak =
+        nextStatus === "completed"
+          ? (state?.currentStreak ?? 0) + 1
+          : nextStatus === "failed"
+          ? 0
+          : state?.currentStreak ?? 0;
+      const streaks = {
+        currentStreak: nextCurrentStreak,
+        bestStreak:
+          nextCurrentStreak > (state?.bestStreak ?? 0)
+            ? nextCurrentStreak
+            : state?.bestStreak ?? 0,
+      };
       setWordleState({
         ...(state ?? {}),
-        wordleIndex: currentWordleIndex,
+        ...streaks,
+        wordleIndex: state?.wordleIndex ?? 0,
         wordleRows: [...(state?.wordleRows ?? []), checked],
         wordleStatus: nextStatus,
       });
@@ -163,24 +167,6 @@ const HomeScreen: React.FC = () => {
     }
   };
 
-  React.useEffect(() => {
-    const fetchNotificationStatus = async () => {
-      const status = await getNotificationsLocalState();
-      setNotificationState(status);
-      if (status) {
-        resetNotifications();
-      }
-    };
-
-    fetchNotificationStatus();
-  }, []);
-
-  const onNotificationPress = React.useCallback(async () => {
-    const nextState = !notificationState;
-    setNotificationState(nextState);
-    await toggleNotifications(nextState);
-  }, [notificationState]);
-
   const combinedWordleRows = React.useMemo(() => {
     if (state && state?.wordleRows.length < MAX_GUESS_COUNT) {
       return [
@@ -197,15 +183,18 @@ const HomeScreen: React.FC = () => {
     }
   }, [state, activeTyping]);
 
+  if (!loaded) {
+    return (
+      <SafeAreaView style={styles.screen}>
+        <StatusBar style="light" />
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.screen}>
       <StatusBar style="light" />
-      <Header
-        index={currentWordleIndex}
-        onInfo={onInfoPress}
-        onNotification={onNotificationPress}
-        notificationsEnabled={notificationState}
-      />
+      <Header index={state?.wordleIndex ?? 0} onInfo={onInfoPress} />
       {!instructionsVisible ? (
         <>
           <View style={styles.gridWrapper}>
@@ -217,9 +206,9 @@ const HomeScreen: React.FC = () => {
                         {Array.from({ length: WORDLE_LENGTH }).map((_, j) => (
                           <Letter
                             key={`${i}-${j}`}
-                            letter={combinedWordleRows?.[i]?.[
-                              j
-                            ]?.key.toLocaleUpperCase("tr")}
+                            letter={toUpper(
+                              combinedWordleRows?.[i]?.[j]?.key ?? "",
+                            )}
                             type={combinedWordleRows?.[i]?.[j]?.type}
                             size={unitSize}
                           />
