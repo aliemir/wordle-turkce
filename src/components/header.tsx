@@ -6,15 +6,15 @@ import theme from "../theme";
 
 type Props = {
   onInfo?: () => void;
-  onNotification?: () => void;
-  notificationsEnabled?: boolean;
+  // onNotification?: () => void;
+  // notificationsEnabled?: boolean;
   index: number;
 };
 
 const Header: React.FC<Props> = ({
   onInfo,
-  onNotification,
-  notificationsEnabled,
+  // onNotification,
+  // notificationsEnabled,
   index,
 }) => {
   return (
@@ -29,17 +29,10 @@ const Header: React.FC<Props> = ({
       <View style={styles.title}>
         <Text style={styles.number}>{`Bulmaca #${(index ?? 0) + 1}`}</Text>
       </View>
-      <TouchableOpacity style={styles.button} onPress={onNotification}>
-        <Ionicons
-          name={
-            notificationsEnabled
-              ? "notifications-outline"
-              : "notifications-off-outline"
-          }
-          color={theme.colors.bodySecondary}
-          size={28}
-        />
-      </TouchableOpacity>
+      <TouchableOpacity
+        disabled
+        style={[styles.button, { opacity: 0 }]}
+      ></TouchableOpacity>
     </View>
   );
 };
