@@ -1,5 +1,6 @@
+import { toLower } from "../utils/to-lower";
+
 const AllWords = [
-  "madde",
   "abana",
   "abaza",
   "abbas",
@@ -242,7 +243,6 @@ const AllWords = [
   "zebur",
   "zühal",
   "zühre",
-  "a / e",
   "abacı",
   "abadi",
   "abalı",
@@ -3050,7 +3050,7 @@ const AllWords = [
   "makta",
   "maktu",
   "makul",
-  "makûs",
+  "makus",
   "malak",
   "malaz",
   "malca",
@@ -3458,7 +3458,7 @@ const AllWords = [
   "nüfus",
   "nüfuz",
   "nükte",
-  "nükûl",
+  "nükul",
   "nüsha",
   "nüzul",
   "nısıf",
@@ -4213,8 +4213,8 @@ const AllWords = [
   "sücut",
   "süfli",
   "sükse",
-  "sükûn",
-  "sükût",
+  "sükun",
+  "sükut",
   "süluk",
   "sülük",
   "sülün",
@@ -4898,7 +4898,7 @@ const AllWords = [
   "yegah",
   "yegan",
   "yekta",
-  "yekûn",
+  "yekun",
   "yelek",
   "yeleç",
   "yelin",
@@ -5583,10 +5583,7 @@ const AllWords = [
 ];
 
 export const AllWordsDictionary = Object.fromEntries(
-  AllWords.map((word) => [
-    word.toLocaleLowerCase("tr"),
-    word.toLocaleLowerCase("tr"),
-  ]),
+  AllWords.map((word) => [toLower(word), toLower(word)]),
 );
 
 export default AllWords;
