@@ -8,14 +8,14 @@
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#0f172a"
     },
     "plugins": [
       [
         "expo-notifications",
         {
           "icon": "./assets/notification-icon.png",
-          "color": "#ffffff"
+          "color": "#0f172a"
         }
       ]
     ],
@@ -31,9 +31,10 @@
     "android": {
       "package": "com.aliemir.turkceworldle",
       "versionCode": 4,
+      "backgroundColor": "#0f172a",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#FFFFFF"
+        "backgroundColor": "#0f172a"
       }
     },
     "web": {
