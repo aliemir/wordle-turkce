@@ -9,6 +9,7 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import theme from "../theme";
 import { KeyStatus } from "../@types/wordle-state";
+import { toLower } from "../utils/to-lower";
 
 type KeyboardProps = {
   onKeyPress?: (key: string) => void;
@@ -123,13 +124,13 @@ const Keyboard: React.FC<KeyboardProps> = ({
           {row.split("").map((key) => (
             <Key
               key={key}
-              onPress={() => onKeyPress?.(key.toLocaleLowerCase("tr"))}
+              onPress={() => onKeyPress?.(toLower(key))}
               status={
-                correctKeys?.includes(key.toLocaleLowerCase("tr"))
+                correctKeys?.includes(toLower(key))
                   ? "correct"
-                  : missKeys?.includes(key.toLocaleLowerCase("tr"))
+                  : missKeys?.includes(toLower(key))
                   ? "misplaced"
-                  : wrongKeys?.includes(key.toLocaleLowerCase("tr"))
+                  : wrongKeys?.includes(toLower(key))
                   ? "wrong"
                   : "default"
               }
