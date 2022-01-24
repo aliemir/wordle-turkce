@@ -2,7 +2,8 @@ import React from "react";
 import { StatusBar } from "expo-status-bar";
 import {
   View,
-  Text,
+  Platform,
+  ToastAndroid,
   StyleSheet,
   LayoutAnimation,
   LayoutChangeEvent,
@@ -21,7 +22,6 @@ import { AllWordsDictionary } from "../data/all-words";
 import Instructions from "../components/instructions";
 import { getStoredInstructionsState } from "../utils/get-stored-instructions-state";
 import { setStoredInstructionsState } from "../utils/set-stored-instructions-state";
-import Toast from "react-native-root-toast";
 import { toLower, toUpper } from "../utils/to-lower";
 
 const HomeScreen: React.FC = () => {
@@ -81,28 +81,42 @@ const HomeScreen: React.FC = () => {
       // check validity
       const dict = AllWordsDictionary[toLower(activeTyping.join(""))];
       if (!dict) {
-        Toast.show("Kelime Bulunamadı.", {
-          duration: Toast.durations.SHORT,
-          position: Toast.positions.CENTER,
-          backgroundColor: theme.colors.backgroundColorSecondary,
-          textColor: theme.colors.bodyTetriary,
-          opacity: 1,
-        });
+        if (Platform.OS === "android") {
+          ToastAndroid.show("Kelime Bulunamadı.", ToastAndroid.SHORT);
+        }
         return;
       }
       // able to submit
+
+      // prepare to check
+      const guess = [...activeTyping];
+      const dirty_wordle = currentWordle.split("");
       const checked: { key: string; type: KeyStatus }[] = activeTyping.map(
-        (key, i) =>
-          ({
-            key: toLower(key),
-            type:
-              toLower(key) === currentWordle[i]
-                ? "correct"
-                : currentWordle.includes(toLower(key))
-                ? "misplaced"
-                : "wrong",
-          } as { key: string; type: KeyStatus }),
+        (key) => ({ key: key, type: "wrong" }),
       );
+
+      // Correct Keys
+      for (let idx = 0; idx < guess.length; idx++) {
+        if (dirty_wordle[idx] === guess[idx]) {
+          checked[idx].type = "correct";
+          dirty_wordle[idx] = "_";
+          guess[idx] = "~";
+        }
+      }
+      // Misplaced Keys
+      for (let idx = 0; idx < guess.length; idx++) {
+        const i = dirty_wordle.findIndex((el) => el === guess[idx]);
+
+        if (i > -1) {
+          checked[idx].type = "misplaced";
+          dirty_wordle[i] = "_";
+          guess[idx] = "~";
+        }
+      }
+
+      // console.log(guess);
+      // console.log(dirty_wordle);
+      // console.log(checked);
 
       setActiveTyping([]);
       const nextStatus = checked.every((el) => el.type === "correct")
@@ -111,13 +125,9 @@ const HomeScreen: React.FC = () => {
         ? "failed"
         : "inprogress";
       if (nextStatus === "completed") {
-        Toast.show("Tebrikler!", {
-          duration: Toast.durations.SHORT,
-          position: Toast.positions.CENTER,
-          backgroundColor: theme.colors.backgroundColorSecondary,
-          textColor: theme.colors.bodyTetriary,
-          opacity: 1,
-        });
+        if (Platform.OS === "android") {
+          ToastAndroid.show("Tebrikler!", ToastAndroid.SHORT);
+        }
       }
       const nextCurrentStreak =
         nextStatus === "completed"
