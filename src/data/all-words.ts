@@ -1,6 +1,5 @@
-import { toLower } from "../utils/to-lower";
 
-export const AllWordsDictionary = {
+export const AllWordsDictionary: Record<string, string> = {
   "abana": "abana",
   "abaza": "abaza",
   "abbas": "abbas",
