@@ -2,7 +2,7 @@
   "expo": {
     "name": "Wordle Türkçe",
     "slug": "wordle-turkce",
-    "version": "1.1.0",
+    "version": "1.2.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "splash": {
@@ -26,11 +26,11 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.aliemir.turkcewordle",
-      "buildNumber": "1.1.0"
+      "buildNumber": "1.2.0"
     },
     "android": {
       "package": "com.aliemir.turkceworldle",
-      "versionCode": 7,
+      "versionCode": 8,
       "backgroundColor": "#0f172a",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
