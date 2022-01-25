@@ -18,7 +18,7 @@ import {
   WORDLE_SHARE_MISPLACED,
   WORDLE_SHARE_WRONG,
 } from "../constants";
-import { toLower, toUpper } from "../utils/to-lower";
+import { toUpper } from "../utils/to-lower";
 
 const Result: React.FC = () => {
   const [visible, setVisible] = React.useState(false);

@@ -10,15 +10,6 @@
       "resizeMode": "contain",
       "backgroundColor": "#0f172a"
     },
-    "plugins": [
-      [
-        "expo-notifications",
-        {
-          "icon": "./assets/notification-icon.png",
-          "color": "#0f172a"
-        }
-      ]
-    ],
     "updates": {
       "fallbackToCacheTimeout": 0
     },

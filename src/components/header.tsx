@@ -6,17 +6,10 @@ import theme from "../theme";
 
 type Props = {
   onInfo?: () => void;
-  // onNotification?: () => void;
-  // notificationsEnabled?: boolean;
   index: number;
 };
 
-const Header: React.FC<Props> = ({
-  onInfo,
-  // onNotification,
-  // notificationsEnabled,
-  index,
-}) => {
+const Header: React.FC<Props> = ({ onInfo, index }) => {
   return (
     <View style={styles.wrapper}>
       <TouchableOpacity style={styles.button} onPress={onInfo}>
