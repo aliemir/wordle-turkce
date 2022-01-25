@@ -18,34 +18,28 @@ import { useWordleState } from "../contexts/wordle-state-context";
 import { MAX_GUESS_COUNT, WORDLE_LENGTH } from "../constants";
 import { KeyStatus } from "../@types/wordle-state";
 import { getCurrentWordle } from "../utils/get-current-wordle";
-import { AllWordsDictionary } from "../data/all-words";
+import { dictionary } from "../data/all-words";
 import Instructions from "../components/instructions";
-import { getStoredInstructionsState } from "../utils/get-stored-instructions-state";
-import { setStoredInstructionsState } from "../utils/set-stored-instructions-state";
 import { toLower, toUpper } from "../utils/to-lower";
+import { checkGuess } from "../utils/check-guess";
+import { getNextStatus } from "../utils/get-next-status";
+import { getStreaks } from "../utils/get-streaks";
+import { useInstructions } from "../utils/use-instructions";
 
 const HomeScreen: React.FC = () => {
   const [settled, setSettled] = React.useState(false);
   const [unitSize, setUnitSize] = React.useState<number | undefined>(undefined);
   const [state, setWordleState, loaded] = useWordleState();
   const [activeTyping, setActiveTyping] = React.useState<string[]>([]);
-  const [instructionsVisible, setInstructionsVisible] = React.useState(false);
-  const [isInitialInstructions, setIsInitialInstructions] =
-    React.useState(false);
+  const {
+    visible: instructionsVisible,
+    toggle: toggleInstructions,
+    isInitial: isInitialInstructions,
+  } = useInstructions();
 
   const currentWordle = React.useMemo(() => {
     return getCurrentWordle(state?.wordleIndex ?? 0);
   }, [state]);
-
-  React.useEffect(() => {
-    const getInitialState = async () => {
-      const initial = await getStoredInstructionsState();
-      setIsInitialInstructions(!initial);
-      setInstructionsVisible(!initial);
-    };
-
-    getInitialState();
-  }, []);
 
   React.useLayoutEffect(() => {
     setTimeout(() => {
@@ -79,8 +73,7 @@ const HomeScreen: React.FC = () => {
         ),
       );
       // check validity
-      const dict = AllWordsDictionary[toLower(activeTyping.join(""))];
-      if (!dict) {
+      if (!dictionary[toLower(activeTyping.join(""))]) {
         if (Platform.OS === "android") {
           ToastAndroid.show("Kelime Bulunamadı.", ToastAndroid.SHORT);
         }
@@ -88,60 +81,24 @@ const HomeScreen: React.FC = () => {
       }
       // able to submit
 
-      // prepare to check
-      const guess = [...activeTyping];
-      const dirty_wordle = currentWordle.split("");
-      const checked: { key: string; type: KeyStatus }[] = activeTyping.map(
-        (key) => ({ key: key, type: "wrong" }),
-      );
-
-      // Correct Keys
-      for (let idx = 0; idx < guess.length; idx++) {
-        if (dirty_wordle[idx] === guess[idx]) {
-          checked[idx].type = "correct";
-          dirty_wordle[idx] = "_";
-          guess[idx] = "~";
-        }
-      }
-      // Misplaced Keys
-      for (let idx = 0; idx < guess.length; idx++) {
-        const i = dirty_wordle.findIndex((el) => el === guess[idx]);
-
-        if (i > -1) {
-          checked[idx].type = "misplaced";
-          dirty_wordle[i] = "_";
-          guess[idx] = "~";
-        }
-      }
-
-      // console.log(guess);
-      // console.log(dirty_wordle);
-      // console.log(checked);
+      const checked = checkGuess(activeTyping.join(""), currentWordle);
 
       setActiveTyping([]);
-      const nextStatus = checked.every((el) => el.type === "correct")
-        ? "completed"
-        : state?.wordleRows.length === MAX_GUESS_COUNT - 1
-        ? "failed"
-        : "inprogress";
+
+      const nextStatus = getNextStatus(checked, state?.wordleRows ?? []);
+
+      const streaks = getStreaks(
+        nextStatus,
+        state?.currentStreak ?? 0,
+        state?.bestStreak ?? 0,
+      );
+
       if (nextStatus === "completed") {
         if (Platform.OS === "android") {
           ToastAndroid.show("Tebrikler!", ToastAndroid.SHORT);
         }
       }
-      const nextCurrentStreak =
-        nextStatus === "completed"
-          ? (state?.currentStreak ?? 0) + 1
-          : nextStatus === "failed"
-          ? 0
-          : state?.currentStreak ?? 0;
-      const streaks = {
-        currentStreak: nextCurrentStreak,
-        bestStreak:
-          nextCurrentStreak > (state?.bestStreak ?? 0)
-            ? nextCurrentStreak
-            : state?.bestStreak ?? 0,
-      };
+
       setWordleState({
         ...(state ?? {}),
         ...streaks,
@@ -170,11 +127,7 @@ const HomeScreen: React.FC = () => {
         LayoutAnimation.Properties.opacity,
       ),
     );
-    setInstructionsVisible((p) => !p);
-    if (isInitialInstructions) {
-      setStoredInstructionsState();
-      setIsInitialInstructions(false);
-    }
+    toggleInstructions();
   };
 
   const combinedWordleRows = React.useMemo(() => {
@@ -200,6 +153,12 @@ const HomeScreen: React.FC = () => {
       </SafeAreaView>
     );
   }
+
+  const showResults = React.useMemo(
+    () =>
+      state?.wordleStatus === "completed" || state?.wordleStatus === "failed",
+    [state],
+  );
 
   return (
     <SafeAreaView style={styles.screen}>
@@ -235,24 +194,17 @@ const HomeScreen: React.FC = () => {
               onRemove={onRemoveKey}
               onSubmit={onSubmitTry}
               missKeys={state?.wordleRows
-                .flatMap((row) => row)
-                .filter((key) => key.type === "misplaced")
+                .flatMap((row) => row.filter((key) => key.type === "misplaced"))
                 .map((key) => key.key)}
               correctKeys={state?.wordleRows
-                .flatMap((row) => row)
-                .filter((key) => key.type === "correct")
+                .flatMap((row) => row.filter((key) => key.type === "correct"))
                 .map((key) => key.key)}
               wrongKeys={state?.wordleRows
-                .flatMap((row) => row)
-                .filter((key) => key.type === "wrong")
+                .flatMap((row) => row.filter((key) => key.type === "wrong"))
                 .map((key) => key.key)}
             />
           </View>
-          {state &&
-          (state.wordleStatus === "completed" ||
-            state.wordleStatus === "failed") ? (
-            <Result />
-          ) : null}
+          {showResults ? <Result /> : null}
         </>
       ) : (
         <Instructions isInitial={isInitialInstructions} onStart={onInfoPress} />
