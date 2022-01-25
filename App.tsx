@@ -2,7 +2,6 @@ import React from "react";
 import { loadAsync } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
 import { Platform, UIManager } from "react-native";
-import { RootSiblingParent } from "react-native-root-siblings";
 import {
   Merriweather_400Regular,
   Merriweather_400Regular_Italic,
@@ -63,10 +62,8 @@ export default function App() {
   }
 
   return (
-    <RootSiblingParent>
-      <WordleStateProvider>
-        <HomeScreen />
-      </WordleStateProvider>
-    </RootSiblingParent>
+    <WordleStateProvider>
+      <HomeScreen />
+    </WordleStateProvider>
   );
 }
