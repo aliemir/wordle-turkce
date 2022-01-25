@@ -59,6 +59,7 @@ const Letter: React.FC<Props> = ({ letter, size = 60, type }) => {
     <View style={styles.wrapper}>
       <Animated.View style={[{ backgroundColor: bgColor }, letterStyle]}>
         <Text
+          allowFontScaling={false}
           style={[
             styles.text,
             {

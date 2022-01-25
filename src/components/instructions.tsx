@@ -22,9 +22,10 @@ const Instructions: React.FC<{ isInitial?: boolean; onStart?: () => void }> = ({
         <Letter letter="" size={42} />
         <Letter letter="" size={42} />
       </View>
-      <Text style={styles.text}>
+      <Text style={styles.text} allowFontScaling={false}>
         Her bulmaca beş harfli bir kelimeden oluşur ve yalnızca{" "}
         <Text
+          allowFontScaling={false}
           style={[
             styles.text,
             {
@@ -50,9 +51,10 @@ const Instructions: React.FC<{ isInitial?: boolean; onStart?: () => void }> = ({
         <Letter letter="I" size={42} type="correct" />
         <Letter letter="Ş" size={42} type="correct" />
       </View>
-      <Text style={styles.text}>
+      <Text allowFontScaling={false} style={styles.text}>
         Aranan kelimede bulunan ama yanlış yerdeki harfler{" "}
         <Text
+          allowFontScaling={false}
           style={[
             styles.text,
             {
@@ -65,6 +67,7 @@ const Instructions: React.FC<{ isInitial?: boolean; onStart?: () => void }> = ({
         </Text>{" "}
         doğru yerdeki harfler{" "}
         <Text
+          allowFontScaling={false}
           style={[
             styles.text,
             {
@@ -77,6 +80,7 @@ const Instructions: React.FC<{ isInitial?: boolean; onStart?: () => void }> = ({
         </Text>{" "}
         renkle gösterilir. Aranan kelimede bulunmayan harflerse{" "}
         <Text
+          allowFontScaling={false}
           style={[
             styles.text,
             {
@@ -92,7 +96,9 @@ const Instructions: React.FC<{ isInitial?: boolean; onStart?: () => void }> = ({
       {isInitial && (
         <View style={styles.buttonWrapper}>
           <TouchableOpacity style={styles.button} onPress={onStart}>
-            <Text style={styles.buttonLabel}>Başla!</Text>
+            <Text allowFontScaling={false} style={styles.buttonLabel}>
+              Başla!
+            </Text>
           </TouchableOpacity>
         </View>
       )}

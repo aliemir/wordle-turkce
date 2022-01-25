@@ -72,11 +72,11 @@ const Result: React.FC = () => {
 
   return (
     <View style={styles.modal}>
-      <Text style={styles.title}>
+      <Text style={styles.title} allowFontScaling={false}>
         {state?.wordleStatus === "completed" ? "Başarılı!" : "Başarısız :("}
       </Text>
 
-      <Text style={styles.word}>
+      <Text style={styles.word} allowFontScaling={false}>
         {toUpper(getCurrentWordle(state?.wordleIndex ?? 0))}
       </Text>
       <View
@@ -87,18 +87,30 @@ const Result: React.FC = () => {
         }}
       >
         <View style={{ flex: 1 }}>
-          <Text style={[styles.word, { textAlign: "center" }]}>
+          <Text
+            allowFontScaling={false}
+            style={[styles.word, { textAlign: "center" }]}
+          >
             {state?.currentStreak ?? 0}
           </Text>
-          <Text style={[styles.title, { textAlign: "center" }]}>
+          <Text
+            allowFontScaling={false}
+            style={[styles.title, { textAlign: "center" }]}
+          >
             Güncel Seri
           </Text>
         </View>
         <View style={{ flex: 1 }}>
-          <Text style={[styles.word, { textAlign: "center" }]}>
+          <Text
+            allowFontScaling={false}
+            style={[styles.word, { textAlign: "center" }]}
+          >
             {state?.bestStreak ?? 0}
           </Text>
-          <Text style={[styles.title, { textAlign: "center" }]}>
+          <Text
+            allowFontScaling={false}
+            style={[styles.title, { textAlign: "center" }]}
+          >
             En İyi Seri
           </Text>
         </View>
@@ -121,7 +133,9 @@ const Result: React.FC = () => {
           size={26}
           color={theme.colors.bodyTetriary}
         />
-        <Text style={styles.shareText}>Yeni Kelime</Text>
+        <Text allowFontScaling={false} style={styles.shareText}>
+          Yeni Kelime
+        </Text>
       </TouchableOpacity>
       <TouchableOpacity
         style={[
@@ -138,7 +152,12 @@ const Result: React.FC = () => {
           size={21}
           color={theme.colors.bodyTetriary}
         />
-        <Text style={[styles.shareText, { fontSize: 18 }]}>Paylaş</Text>
+        <Text
+          allowFontScaling={false}
+          style={[styles.shareText, { fontSize: 18 }]}
+        >
+          Paylaş
+        </Text>
       </TouchableOpacity>
     </View>
   );

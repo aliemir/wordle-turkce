@@ -79,6 +79,7 @@ const Key: React.FC<KeyProps> = ({
           children
         ) : (
           <Text
+            allowFontScaling={false}
             style={{
               color: theme.colors.bodyTetriary,
               fontWeight: "bold",

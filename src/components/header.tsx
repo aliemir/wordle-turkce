@@ -27,7 +27,9 @@ const Header: React.FC<Props> = ({
         />
       </TouchableOpacity>
       <View style={styles.title}>
-        <Text style={styles.number}>{`Bulmaca #${(index ?? 0) + 1}`}</Text>
+        <Text allowFontScaling={false} style={styles.number}>{`Bulmaca #${
+          (index ?? 0) + 1
+        }`}</Text>
       </View>
       <TouchableOpacity
         disabled
