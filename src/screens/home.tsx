@@ -2,6 +2,7 @@ import React from "react";
 import { StatusBar } from "expo-status-bar";
 import {
   View,
+  Text,
   Platform,
   ToastAndroid,
   StyleSheet,
@@ -37,9 +38,11 @@ const HomeScreen: React.FC = () => {
     isInitial: isInitialInstructions,
   } = useInstructions();
 
+  const stateIndex = state?.wordleIndex;
+
   const currentWordle = React.useMemo(() => {
-    return getCurrentWordle(state?.wordleIndex ?? 0);
-  }, [state]);
+    return getCurrentWordle(stateIndex ?? 0);
+  }, [stateIndex]);
 
   React.useLayoutEffect(() => {
     setTimeout(() => {
@@ -63,7 +66,7 @@ const HomeScreen: React.FC = () => {
     [],
   );
 
-  const onSubmitTry = () => {
+  const onSubmitTry = React.useCallback(() => {
     if (activeTyping.length === WORDLE_LENGTH) {
       LayoutAnimation.configureNext(
         LayoutAnimation.create(
@@ -81,7 +84,7 @@ const HomeScreen: React.FC = () => {
       }
       // able to submit
 
-      const checked = checkGuess(activeTyping.join(""), currentWordle);
+      const checked = checkGuess(activeTyping.join(""), currentWordle ?? "");
 
       setActiveTyping([]);
 
@@ -107,19 +110,17 @@ const HomeScreen: React.FC = () => {
         wordleStatus: nextStatus,
       });
     }
-  };
+  }, [activeTyping, currentWordle, state]);
 
-  const onRemoveKey = () => {
+  const onRemoveKey = React.useCallback(() => {
     setActiveTyping((p) => p.slice(0, -1));
-  };
+  }, []);
 
-  const onKeyPress = (key: string) => {
-    if (activeTyping.length < WORDLE_LENGTH) {
-      setActiveTyping((p) => [...p, key]);
-    }
-  };
+  const onKeyPress = React.useCallback((key: string) => {
+    setActiveTyping((p) => [...p, key].slice(0, WORDLE_LENGTH));
+  }, []);
 
-  const onInfoPress = () => {
+  const onInfoPress = React.useCallback(() => {
     LayoutAnimation.configureNext(
       LayoutAnimation.create(
         250,
@@ -128,13 +129,13 @@ const HomeScreen: React.FC = () => {
       ),
     );
     toggleInstructions();
-  };
+  }, [toggleInstructions]);
 
   const combinedWordleRows = React.useMemo(() => {
     if (state && state?.wordleRows.length < MAX_GUESS_COUNT) {
       return [
         ...(state?.wordleRows ?? []),
-        activeTyping.map((key, index) => {
+        activeTyping.map((key) => {
           return {
             key: key,
             type: "default",
@@ -152,6 +153,11 @@ const HomeScreen: React.FC = () => {
     [state],
   );
 
+  const isLevelDefined = React.useMemo(
+    () => typeof currentWordle !== "undefined",
+    [currentWordle],
+  );
+
   if (!loaded) {
     return (
       <SafeAreaView style={styles.screen}>
@@ -165,47 +171,73 @@ const HomeScreen: React.FC = () => {
       <StatusBar style="light" />
       <Header index={state?.wordleIndex ?? 0} onInfo={onInfoPress} />
       {!instructionsVisible ? (
-        <>
+        !isLevelDefined ? (
           <View style={styles.gridWrapper}>
-            {settled && (
-              <View onLayout={onGridLayout} style={styles.grid}>
-                {unitSize
-                  ? Array.from({ length: MAX_GUESS_COUNT }).map((_, i) => (
-                      <View key={i} style={styles.gridRow}>
-                        {Array.from({ length: WORDLE_LENGTH }).map((_, j) => (
-                          <Letter
-                            key={`${i}-${j}`}
-                            letter={toUpper(
-                              combinedWordleRows?.[i]?.[j]?.key ?? "",
-                            )}
-                            type={combinedWordleRows?.[i]?.[j]?.type}
-                            size={unitSize}
-                          />
-                        ))}
-                      </View>
-                    ))
-                  : null}
-              </View>
-            )}
+            <View
+              style={{
+                flex: 1,
+                justifyContent: "center",
+                alignItems: "center",
+                marginBottom: theme.spacing.l * 2,
+              }}
+            >
+              <Text
+                style={{
+                  textAlign: "center",
+                  color: theme.colors.bodyPrimary,
+                  fontSize: 20,
+                  fontFamily: theme.fontFamilies.Bold,
+                }}
+              >
+                Yeni bölümler çok yakında...
+              </Text>
+            </View>
           </View>
-          <View style={styles.keyboardWrapper}>
-            <Keyboard
-              onKeyPress={onKeyPress}
-              onRemove={onRemoveKey}
-              onSubmit={onSubmitTry}
-              missKeys={state?.wordleRows
-                .flatMap((row) => row.filter((key) => key.type === "misplaced"))
-                .map((key) => key.key)}
-              correctKeys={state?.wordleRows
-                .flatMap((row) => row.filter((key) => key.type === "correct"))
-                .map((key) => key.key)}
-              wrongKeys={state?.wordleRows
-                .flatMap((row) => row.filter((key) => key.type === "wrong"))
-                .map((key) => key.key)}
-            />
-          </View>
-          {showResults ? <Result /> : null}
-        </>
+        ) : (
+          <>
+            <View style={styles.gridWrapper}>
+              {settled && (
+                <View onLayout={onGridLayout} style={styles.grid}>
+                  {unitSize
+                    ? Array.from({ length: MAX_GUESS_COUNT }).map((_, i) => (
+                        <View key={i} style={styles.gridRow}>
+                          {Array.from({ length: WORDLE_LENGTH }).map((_, j) => (
+                            <Letter
+                              key={`${i}-${j}`}
+                              letter={toUpper(
+                                combinedWordleRows?.[i]?.[j]?.key ?? "",
+                              )}
+                              type={combinedWordleRows?.[i]?.[j]?.type}
+                              size={unitSize}
+                            />
+                          ))}
+                        </View>
+                      ))
+                    : null}
+                </View>
+              )}
+            </View>
+            <View style={styles.keyboardWrapper}>
+              <Keyboard
+                onKeyPress={onKeyPress}
+                onRemove={onRemoveKey}
+                onSubmit={onSubmitTry}
+                missKeys={state?.wordleRows
+                  .flatMap((row) =>
+                    row.filter((key) => key.type === "misplaced"),
+                  )
+                  .map((key) => key.key)}
+                correctKeys={state?.wordleRows
+                  .flatMap((row) => row.filter((key) => key.type === "correct"))
+                  .map((key) => key.key)}
+                wrongKeys={state?.wordleRows
+                  .flatMap((row) => row.filter((key) => key.type === "wrong"))
+                  .map((key) => key.key)}
+              />
+            </View>
+            {showResults ? <Result /> : null}
+          </>
+        )
       ) : (
         <Instructions isInitial={isInitialInstructions} onStart={onInfoPress} />
       )}
