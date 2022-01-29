@@ -77,7 +77,7 @@ const Result: React.FC = () => {
       </Text>
 
       <Text style={styles.word} allowFontScaling={false}>
-        {toUpper(getCurrentWordle(state?.wordleIndex ?? 0))}
+        {toUpper(getCurrentWordle(state?.wordleIndex ?? 0) ?? "")}
       </Text>
       <View
         style={{
