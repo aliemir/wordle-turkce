@@ -1,5 +1,5 @@
 import Wordles from "../data/wordles";
 
 export const getCurrentWordle = (index?: number) => {
-  return Wordles[index ?? 0]?.madde as string | undefined;
+  return Wordles[index ?? 0] as string | undefined;
 };
