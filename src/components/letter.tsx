@@ -15,65 +15,71 @@ type Props = {
   size?: number;
 };
 
-const Letter: React.FC<Props> = ({ letter, size = 60, type }) => {
-  const bgColor = React.useMemo(() => {
-    switch (type) {
-      case "correct":
-        return theme.colors.green;
-      case "misplaced":
-        return theme.colors.yellow;
-      case "wrong":
-        return theme.colors.backgroundColorSecondary;
-      default:
-        return theme.colors.backgroundColorTetriary;
-    }
-  }, [type]);
+const Letter: React.FC<Props> = React.memo(
+  ({ letter, size = 60, type }) => {
+    const bgColor = React.useMemo(() => {
+      switch (type) {
+        case "correct":
+          return theme.colors.green;
+        case "misplaced":
+          return theme.colors.yellow;
+        case "wrong":
+          return theme.colors.backgroundColorSecondary;
+        default:
+          return theme.colors.backgroundColorTetriary;
+      }
+    }, [type]);
 
-  const animatedValue = useSharedValue(1);
+    const animatedValue = useSharedValue(1);
 
-  React.useEffect(() => {
-    animatedValue.value = withSequence(withTiming(1.2), withTiming(1));
-  }, [type]);
+    React.useEffect(() => {
+      animatedValue.value = withSequence(withTiming(1.2), withTiming(1));
+    }, [type]);
 
-  React.useEffect(() => {
-    animatedValue.value = withSequence(
-      withTiming(1.1, { duration: 180 }),
-      withTiming(1, { duration: 180 }),
+    React.useEffect(() => {
+      animatedValue.value = withSequence(
+        withTiming(1.1, { duration: 180 }),
+        withTiming(1, { duration: 180 }),
+      );
+    }, [letter]);
+
+    const letterStyle = useAnimatedStyle(() => {
+      return {
+        borderRadius: theme.borderRadii.s,
+        width: size - theme.spacing.s,
+        height: size - theme.spacing.s,
+        transform: [
+          {
+            scale: animatedValue.value,
+          },
+        ],
+      };
+    }, []);
+
+    return (
+      <View style={styles.wrapper}>
+        <Animated.View style={[{ backgroundColor: bgColor }, letterStyle]}>
+          <Text
+            allowFontScaling={false}
+            style={[
+              styles.text,
+              {
+                lineHeight: size - theme.spacing.s,
+                fontSize: (size - theme.spacing.s) * 0.7,
+              },
+            ]}
+          >
+            {letter}
+          </Text>
+        </Animated.View>
+      </View>
     );
-  }, [letter]);
-
-  const letterStyle = useAnimatedStyle(() => {
-    return {
-      borderRadius: theme.borderRadii.s,
-      width: size - theme.spacing.s,
-      height: size - theme.spacing.s,
-      transform: [
-        {
-          scale: animatedValue.value,
-        },
-      ],
-    };
-  }, []);
-
-  return (
-    <View style={styles.wrapper}>
-      <Animated.View style={[{ backgroundColor: bgColor }, letterStyle]}>
-        <Text
-          allowFontScaling={false}
-          style={[
-            styles.text,
-            {
-              lineHeight: size - theme.spacing.s,
-              fontSize: (size - theme.spacing.s) * 0.7,
-            },
-          ]}
-        >
-          {letter}
-        </Text>
-      </Animated.View>
-    </View>
-  );
-};
+  },
+  (prev, next) =>
+    prev.letter === next.letter &&
+    prev.size === next.size &&
+    prev.type === next.type,
+);
 
 const styles = StyleSheet.create({
   wrapper: {
