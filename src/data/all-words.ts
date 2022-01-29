@@ -1,3 +1,8 @@
+/**
+ * Kelime kaynagi database:
+ * https://github.com/ogun/guncel-turkce-sozluk
+ */
+
 export const dictionary: Record<string, string> = {
   abana: "abana",
   abaza: "abaza",
