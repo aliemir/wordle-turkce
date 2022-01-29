@@ -146,6 +146,12 @@ const HomeScreen: React.FC = () => {
     }
   }, [state, activeTyping]);
 
+  const showResults = React.useMemo(
+    () =>
+      state?.wordleStatus === "completed" || state?.wordleStatus === "failed",
+    [state],
+  );
+
   if (!loaded) {
     return (
       <SafeAreaView style={styles.screen}>
@@ -153,12 +159,6 @@ const HomeScreen: React.FC = () => {
       </SafeAreaView>
     );
   }
-
-  const showResults = React.useMemo(
-    () =>
-      state?.wordleStatus === "completed" || state?.wordleStatus === "failed",
-    [state],
-  );
 
   return (
     <SafeAreaView style={styles.screen}>
