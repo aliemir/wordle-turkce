@@ -58,34 +58,27 @@ const Key: React.FC<KeyProps> = ({
 
   return (
     <View
-      style={{
-        paddingHorizontal: KEY_GAP / 2,
-        width: isActionKey ? ACTION_KEY_WIDTH : KEY_WIDTH,
-      }}
+      style={[
+        styles.keyWrapper,
+        {
+          width: isActionKey ? ACTION_KEY_WIDTH : KEY_WIDTH,
+        },
+      ]}
     >
       <TouchableOpacity
         onPress={onPress}
         activeOpacity={0.6}
-        style={{
-          backgroundColor: bgColor,
-          borderRadius: KEY_GAP,
-          padding: theme.spacing.s,
-          height: KEY_HEIGHT,
-          justifyContent: "center",
-          alignItems: "center",
-        }}
+        style={[
+          styles.keyButton,
+          {
+            backgroundColor: bgColor,
+          },
+        ]}
       >
         {isActionKey ? (
           children
         ) : (
-          <Text
-            allowFontScaling={false}
-            style={{
-              color: theme.colors.bodyTetriary,
-              fontWeight: "bold",
-              fontSize: (KEY_WIDTH * 2) / 4,
-            }}
-          >
+          <Text allowFontScaling={false} style={styles.keyText}>
             {children}
           </Text>
         )}
@@ -105,14 +98,7 @@ const Keyboard: React.FC<KeyboardProps> = ({
   return (
     <View>
       {KEYS_BY_ROW.map((row, i, arr) => (
-        <View
-          key={row}
-          style={{
-            flexDirection: "row",
-            justifyContent: "center",
-            marginBottom: KEY_GAP * 2,
-          }}
-        >
+        <View key={row} style={styles.keyRow}>
           {arr.length - 1 === i ? (
             <Key isActionKey onPress={onSubmit}>
               <Ionicons
@@ -126,15 +112,17 @@ const Keyboard: React.FC<KeyboardProps> = ({
             <Key
               key={key}
               onPress={() => onKeyPress?.(toLower(key))}
-              status={
-                correctKeys?.includes(toLower(key))
+              status={(() => {
+                const low = toLower(key);
+
+                return correctKeys?.includes(low)
                   ? "correct"
-                  : missKeys?.includes(toLower(key))
+                  : missKeys?.includes(low)
                   ? "misplaced"
-                  : wrongKeys?.includes(toLower(key))
+                  : wrongKeys?.includes(low)
                   ? "wrong"
-                  : "default"
-              }
+                  : "default";
+              })()}
             >
               {key}
             </Key>
@@ -155,3 +143,26 @@ const Keyboard: React.FC<KeyboardProps> = ({
 };
 
 export default Keyboard;
+
+const styles = StyleSheet.create({
+  keyWrapper: {
+    paddingHorizontal: KEY_GAP / 2,
+  },
+  keyButton: {
+    borderRadius: KEY_GAP,
+    padding: theme.spacing.s,
+    height: KEY_HEIGHT,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  keyText: {
+    color: theme.colors.bodyTetriary,
+    fontWeight: "bold",
+    fontSize: (KEY_WIDTH * 2) / 4,
+  },
+  keyRow: {
+    flexDirection: "row",
+    justifyContent: "center",
+    marginBottom: KEY_GAP * 2,
+  },
+});
