@@ -21,6 +21,7 @@ import { KeyStatus } from "../@types/wordle-state";
 import { getCurrentWordle } from "../utils/get-current-wordle";
 import { dictionary } from "../data/all-words";
 import Instructions from "../components/instructions";
+import { Soon } from "../components/soon";
 import { toLower, toUpper } from "../utils/to-lower";
 import { checkGuess } from "../utils/check-guess";
 import { getNextStatus } from "../utils/get-next-status";
@@ -172,27 +173,7 @@ const HomeScreen: React.FC = () => {
       <Header index={state?.wordleIndex ?? 0} onInfo={onInfoPress} />
       {!instructionsVisible ? (
         !isLevelDefined ? (
-          <View style={styles.gridWrapper}>
-            <View
-              style={{
-                flex: 1,
-                justifyContent: "center",
-                alignItems: "center",
-                marginBottom: theme.spacing.l * 2,
-              }}
-            >
-              <Text
-                style={{
-                  textAlign: "center",
-                  color: theme.colors.bodyPrimary,
-                  fontSize: 20,
-                  fontFamily: theme.fontFamilies.Bold,
-                }}
-              >
-                Yeni bölümler çok yakında...
-              </Text>
-            </View>
-          </View>
+          <Soon />
         ) : (
           <>
             <View style={styles.gridWrapper}>
