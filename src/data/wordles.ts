@@ -90,7 +90,7 @@ const Wordles = [
   "hisli",
   "dobra",
   "otsuz",
-  "Havva",
+  "havva",
   "sonlu",
   "cayma",
   "alevi",
